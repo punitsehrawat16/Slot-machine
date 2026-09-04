@@ -1,10 +1,10 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using System.Collections.Generic;
 public class MachineBrain : MonoBehaviour
 {
+    [SerializeField] private WinManager _winManager;
     [Header("Reels Data")]
     [SerializeField] private List<ReelSpin> _reels;
     [SerializeField] private int _maxSymbols;
@@ -16,7 +16,9 @@ public class MachineBrain : MonoBehaviour
     
     //other
     Coroutine _betting;
-
+    private int reel1;
+    private int reel2;
+    private int reel3;
     private void OnEnable()
     {
         UiManager.OnBetting += Bet;
@@ -55,18 +57,23 @@ public class MachineBrain : MonoBehaviour
         }
         
         yield return new WaitForSeconds(_waitTimeResult);
-        _reels[0].SetResult(GetRandomId());
+        reel1 = GetRandomId();
+        _reels[0].SetResult(reel1);
         yield return new WaitForSeconds(_reelsResultDifference);
-        _reels[1].SetResult(GetRandomId());
+        reel2 = GetRandomId();
+        _reels[1].SetResult(reel2);
         yield return new WaitForSeconds(_reelsResultDifference);
-        _reels[2].SetResult(GetRandomId());
+        reel3 = GetRandomId();
+        _reels[2].SetResult(reel3);
+        
+        _winManager.CheckResult(reel1,reel2,reel3);
     }
 
-    int GetRandomId() => Random.Range(0, _maxSymbols);
-   /*int GetRandomId()
+   //  int GetRandomId() => Random.Range(0, _maxSymbols);
+   int GetRandomId()
    {
        int x = Random.Range(0, _maxSymbols);
        Debug.Log(x);
        return x;
-   }*/
+   }
 }

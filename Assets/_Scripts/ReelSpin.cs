@@ -16,26 +16,24 @@ public class ReelSpin : MonoBehaviour
     [SerializeField] private float targetYPos = 2f;
     [SerializeField] private float symbolDifference = 1f;
 
-    [SerializeField] private float yLowerBound = -0.5f;
-    [SerializeField] private float yUpperBound = 3.5f;
+    [SerializeField] private float yLowerBound = -1f;
 
     private float moveSpeed;
     private int resultId;
 
-    private bool hasResult;
     private bool isSpinning;
+    private bool hasResult;
 
     private void Update()
     {
-        if (hasResult)
-        {
-            StopAtTarget();
-            return;
-        }
-
         if (isSpinning)
         {
             Spin();
+        }
+
+        if (hasResult)
+        {
+            StopAtTarget();
         }
     }
 
@@ -46,8 +44,8 @@ public class ReelSpin : MonoBehaviour
 
     public void StartSpin()
     {
-        hasResult = false;
         isSpinning = true;
+        hasResult = false;
     }
 
     public void SetResult(int id)
@@ -91,6 +89,7 @@ public class ReelSpin : MonoBehaviour
 
         float difference = targetYPos - target.position.y;
 
+        // Move entire reel.
         foreach (SymbolData symbol in symbols)
         {
             Vector3 position = symbol.transform.position;
@@ -98,31 +97,19 @@ public class ReelSpin : MonoBehaviour
             symbol.transform.position = position;
         }
 
-        float reelLength = yUpperBound - yLowerBound;
-
-        foreach (SymbolData symbol in symbols)
-        {
-            Vector3 position = symbol.transform.position;
-
-            if (position.y < yLowerBound)
-                position.y += reelLength;
-
-            if (position.y > yUpperBound)
-                position.y -= reelLength;
-
-            symbol.transform.position = position;
-        }
-
         isSpinning = false;
         hasResult = false;
     }
+   
 
     private int GetIndex(int id)
     {
         for (int i = 0; i < symbols.Count; i++)
         {
             if (symbols[i].id == id)
+            {
                 return i;
+            }
         }
 
         return -1;
@@ -135,7 +122,9 @@ public class ReelSpin : MonoBehaviour
         foreach (SymbolData symbol in symbols)
         {
             if (symbol.transform.position.y > highestY)
+            {
                 highestY = symbol.transform.position.y;
+            }
         }
 
         return highestY;
