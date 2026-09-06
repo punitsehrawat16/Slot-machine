@@ -1,25 +1,34 @@
+using System;
 using System.Collections;
-using UnityEngine;
-using Random = UnityEngine.Random;
 using System.Collections.Generic;
+using UnityEngine;
+
 public class MachineBrain : MonoBehaviour
 {
+    // UI listens to this event to display betting, win, and loss messages.
+    public static event Action<string> OnDisplayMessage;
+    public static event Action<bool> OnMAchineInteraction;
+
+    [Header("References")]
     [SerializeField] private SlotOutcomeGenerator _outcomeGenerator;
     [SerializeField] private WinManager _winManager;
-    [Header("Reels Data")]
+    [SerializeField] private PayManager _payManager;
+
+    [Header("Reels")]
     [SerializeField] private List<ReelSpin> _reels;
     [SerializeField] private int _maxSymbols;
     [SerializeField] private float _reelAnimationSpeed;
-    
+
     [Header("Result Timers")]
-    [SerializeField] private float _reelsResultDifference;
-    [SerializeField] private float _waitTimeResult;
-    
-    //other
-    Coroutine _betting;
-    private int reel1;
-    private int reel2;
-    private int reel3;
+    [SerializeField] private float _reelResultDifference;
+    [SerializeField] private float _resultWaitTime;
+
+    private Coroutine _bettingCoroutine;
+
+    private int _reel1;
+    private int _reel2;
+    private int _reel3;
+
     private void OnEnable()
     {
         UiManager.OnBetting += Bet;
@@ -27,46 +36,72 @@ public class MachineBrain : MonoBehaviour
 
     private void Start()
     {
-        foreach (var reel in _reels)
+        foreach (ReelSpin reel in _reels)
         {
             reel.SetSpeed(_reelAnimationSpeed);
         }
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         UiManager.OnBetting -= Bet;
-        
-        if(_betting!=null)
-            StopCoroutine(_betting);
+
+        if (_bettingCoroutine != null)
+        {
+            StopCoroutine(_bettingCoroutine);
+        }
     }
-    
-    public void Bet()
+
+    public void Bet(int betAmount)
     {
-        Debug.Log("Betting started");
-        if(_betting !=null)
-            StopCoroutine(_betting);
-        
-        _betting = StartCoroutine(StartMachine());
+        _payManager.SetBetAmount(betAmount);
+        OnDisplayMessage?.Invoke("-" + betAmount + " Debited");
+
+        // Prevent multiple spin sequences from running at the same time.
+        if (_bettingCoroutine != null)
+        {
+            StopCoroutine(_bettingCoroutine);
+        }
+
+        _bettingCoroutine = StartCoroutine(StartMachine());
     }
-    
-    IEnumerator StartMachine()
+
+    private IEnumerator StartMachine()
     {
-        foreach (var reel in _reels)
+        OnMAchineInteraction?.Invoke(false);
+        
+        // Start all reels together and stop them sequentially.
+        foreach (ReelSpin reel in _reels)
         {
             reel.StartSpin();
         }
         
-        yield return new WaitForSeconds(_waitTimeResult);
-        reel1 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
-        _reels[0].SetResult(reel1);
-        yield return new WaitForSeconds(_reelsResultDifference);
-        reel2 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
-        _reels[1].SetResult(reel2);
-        yield return new WaitForSeconds(_reelsResultDifference);
-        reel3 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
-        _reels[2].SetResult(reel3);
-        
-        _winManager.CheckResult(reel1,reel2,reel3);
+        yield return new WaitForSeconds(_resultWaitTime);
+
+        _reel1 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
+        _reels[0].SetResult(_reel1);
+
+        yield return new WaitForSeconds(_reelResultDifference);
+
+        _reel2 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
+        _reels[1].SetResult(_reel2);
+
+        yield return new WaitForSeconds(_reelResultDifference);
+
+        _reel3 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
+        _reels[2].SetResult(_reel3);
+
+        // A payout is awarded only when all three reels contain the same symbol.
+        if (_winManager.IsWinningCombination(_reel1, _reel2, _reel3))
+        {
+            int payout = _payManager.CalculatePayout(_reel1);
+            OnDisplayMessage?.Invoke("You Won! +" + payout + " Credits");
+        }
+        else
+        {
+            OnDisplayMessage?.Invoke("You Lost!");
+        }
+        OnMAchineInteraction?.Invoke(true);
+
     }
 }
