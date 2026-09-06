@@ -16,7 +16,8 @@ public class ReelSpin : MonoBehaviour
     [SerializeField] private float targetYPos = 2f;
     [SerializeField] private float symbolDifference = 1f;
 
-    [SerializeField] private float yLowerBound = -1f;
+    [SerializeField] private float yLowerBound = -.5f;
+    [SerializeField] private float yUpperBound = 3.5f;
 
     private float moveSpeed;
     private int resultId;
@@ -86,17 +87,16 @@ public class ReelSpin : MonoBehaviour
 
         if (target.position.y > targetYPos)
             return;
-
-        float difference = targetYPos - target.position.y;
-
+        
         // Move entire reel.
+        float difference = targetYPos - target.position.y;
         foreach (SymbolData symbol in symbols)
         {
             Vector3 position = symbol.transform.position;
             position.y += difference;
             symbol.transform.position = position;
         }
-
+        
         isSpinning = false;
         hasResult = false;
     }
@@ -126,7 +126,7 @@ public class ReelSpin : MonoBehaviour
                 highestY = symbol.transform.position.y;
             }
         }
-
+        
         return highestY;
     }
 }

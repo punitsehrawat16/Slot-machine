@@ -4,6 +4,7 @@ using Random = UnityEngine.Random;
 using System.Collections.Generic;
 public class MachineBrain : MonoBehaviour
 {
+    [SerializeField] private SlotOutcomeGenerator _outcomeGenerator;
     [SerializeField] private WinManager _winManager;
     [Header("Reels Data")]
     [SerializeField] private List<ReelSpin> _reels;
@@ -57,23 +58,15 @@ public class MachineBrain : MonoBehaviour
         }
         
         yield return new WaitForSeconds(_waitTimeResult);
-        reel1 = GetRandomId();
+        reel1 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
         _reels[0].SetResult(reel1);
         yield return new WaitForSeconds(_reelsResultDifference);
-        reel2 = GetRandomId();
+        reel2 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
         _reels[1].SetResult(reel2);
         yield return new WaitForSeconds(_reelsResultDifference);
-        reel3 = GetRandomId();
+        reel3 = _outcomeGenerator.GetRandomSymbolId(_maxSymbols);
         _reels[2].SetResult(reel3);
         
         _winManager.CheckResult(reel1,reel2,reel3);
     }
-
-   //  int GetRandomId() => Random.Range(0, _maxSymbols);
-   int GetRandomId()
-   {
-       int x = Random.Range(0, _maxSymbols);
-       Debug.Log(x);
-       return x;
-   }
 }
