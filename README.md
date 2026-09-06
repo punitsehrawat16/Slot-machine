@@ -84,21 +84,10 @@ The current Unity scripts are located under `_Scripts` in this repository. The s
 
 ### WebGL Build
 
-If a WebGL build is included, open it in a browser using the published build link below:
+A WebGL build is included, open it in a browser using the published build link below:
 
 **WebGL build:** https://punitsehrawat16.itch.io/jackpot-machine
 
-
-If the build is provided as downloadable files, serve the build from a local web server or use the hosting instructions supplied with the build. WebGL builds may not run correctly when opened directly from the file system because of browser restrictions.
-
-## Screenshots and Gameplay
-
-Add screenshots or a gameplay GIF here when available:
-
-```text
-<img width="1662" height="934" alt="image" src="https://github.com/user-attachments/assets/01a6dd60-eeb3-4be2-9082-fe353e696266" />
-
-```
 
 ## Design / Thought Process
 
@@ -118,7 +107,7 @@ The project was developed with meaningful commits and organized into separate sy
 
 ## Links
 
-- **WebGL build:** `[[WebGL Build Link]](https://punitsehrawat16.itch.io/jackpot-machine)`
+- **WebGL build:** (https://punitsehrawat16.itch.io/jackpot-machine)
 
 ## Author
 
